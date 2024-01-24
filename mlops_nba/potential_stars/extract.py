@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from mlops_nba.common.io import create_folder
 from mlops_nba.common.dates import get_now
+from mlops_nba.common.io import create_folder
 from mlops_nba.config import CURATED_DATA_DIR, RAW_DATA_DIR
 
 OUTPUT_FILENAME = "curated_players"
@@ -30,10 +30,7 @@ def get_file(filename: str):
 def get_raw_data(path: Path):
     """Load intermediate data from curated data directory."""
     files = path.glob("*.csv")
-    players = pd.concat(
-        [get_file(filename=stat_player) for stat_player in files],
-        ignore_index=True,
-    )
+    players = pd.concat([get_file(file) for file in files])
     return players
 
 
@@ -48,7 +45,7 @@ def create_nba_features(players: pd.DataFrame) -> pd.DataFrame:
         - (players.FGA - players.FG)
         - (players.FTA - players.FT)
         - players.TOV
-    )
+    ) 
     return players
 
 
@@ -69,4 +66,7 @@ if __name__ == "__main__":
     players = create_nba_features(players=players)
     players["rising_stars"] = players.apply(stars_definition, axis=1)
 
-    players.to_parquet(CURATED_DATA_DIR / f"{OUTPUT_FILENAME}-{current_date}.parquet", compression="snappy")
+    players.to_parquet(
+        CURATED_DATA_DIR / f"{OUTPUT_FILENAME}-{current_date}.parquet",
+        compression="snappy",
+    )
